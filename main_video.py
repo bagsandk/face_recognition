@@ -15,6 +15,9 @@ def gen_frames():  # frameler şeklinde görüntüleri topluyoruz
     sfr.load_encoding_images("images/")
     while True:
         ret, frame = cap.read()
+        fps = cap.get(cv2.CAP_PROP_FPS)
+
+        print(f"{fps} frames per second")
         # Detect Faces
         face_locations, face_names = sfr.detect_known_faces(frame)
         for face_loc, name in zip(face_locations, face_names):
