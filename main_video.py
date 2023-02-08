@@ -1,7 +1,7 @@
 import cv2
 from flask import Flask, render_template, Response
 from simple_facerec import SimpleFacerec
-
+import sys
 # Encode faces from a folder
 sfr = SimpleFacerec()
 
@@ -9,7 +9,8 @@ sfr = SimpleFacerec()
 app = Flask(__name__)
 # Load Camera
 cap = cv2.VideoCapture(0)
-
+if not cap.isOpened():
+    sys.exit('Video source not found...')
 
 def gen_frames():  # frameler şeklinde görüntüleri topluyoruz
     sfr.load_encoding_images("images/")
