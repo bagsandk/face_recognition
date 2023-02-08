@@ -8,9 +8,11 @@ sfr = SimpleFacerec()
 
 app = Flask(__name__)
 # Load Camera
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(20)
 if not cap.isOpened():
     sys.exit('Video source not found...')
+else:
+    print('Video source ready...')
 
 def gen_frames():  # frameler şeklinde görüntüleri topluyoruz
     sfr.load_encoding_images("images/")
