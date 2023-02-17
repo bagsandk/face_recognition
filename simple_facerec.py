@@ -3,7 +3,15 @@ import cv2
 import os
 import glob
 import numpy as np
+import logging
 
+format = "%(asctime)s : %(message)s"
+logging.basicConfig(
+    format=format,
+    level=logging.INFO,
+    datefmt="%H:%M:%S",
+    filename="log.txt"
+)
 class SimpleFacerec:
     def __init__(self):
         self.known_face_encodings = []
@@ -37,6 +45,7 @@ class SimpleFacerec:
             # Store file name and file encoding
             self.known_face_encodings.append(img_encoding)
             self.known_face_names.append(filename)
+        logging.info("Encoding images loaded")
         print("Encoding images loaded")
 
     def detect_known_faces(self, frame):
@@ -68,4 +77,6 @@ class SimpleFacerec:
         # Convert to numpy array to adjust coordinates with frame resizing quickly
         face_locations = np.array(face_locations)
         face_locations = face_locations / self.frame_resizing
+        fac = ''.join(face_names)
+        logging.info(fac)
         return face_locations.astype(int), face_names
