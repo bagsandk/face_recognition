@@ -5,17 +5,27 @@ $(document).ready(function () {
   socket.on("updateSensorData", function (msg) {
     console.log("Received sensorData :: " + msg.date + " :: " + msg.object);
     if (msg.object != "Unknown") {
-      $("#greating").removeClass("text-danger")
-      $("#greating").addClass("text-success")
-      $("#greating").text("Selamat datang " + msg.object);
-    }else{
-      $("#greating").removeClass("text-success")
-      $("#greating").addClass("text-danger")
-      $("#greating").text("Anda belum ada pada system");
+      $("#greeting").removeClass("text-danger");
+      $("#greeting").addClass("text-success");
+      $("#greeting").text("Welcome");
+      $("#name-person").text(msg.object);
+    } else {
+      $("#greeting").removeClass("text-success");
+      $("#greeting").addClass("text-danger");
+      $("#greeting").text("Your face is not recognize");
+      $("#name-person").text("-");
+
     }
   });
   socket.on("updateSensorDataEmpty", function (msg) {
-    console.log("Received updateSensorDataEmpty :: " + msg.date );
-      $("#greating").text("");
+    console.log("Received updateSensorDataEmpty :: " + msg.date);
+    $("#greeting").text("");
   });
+
+  n = new Date();
+  y = n.getFullYear();
+  m = n.getMonth() + 1;
+  d = n.getDate();
+  document.getElementById("date").innerHTML = m + "/" + d + "/" + y;
+
 });
