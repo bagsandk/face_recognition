@@ -26,6 +26,10 @@
             max-width: 100%;
             height: 100%;
         }
+
+        .fs-7 {
+            font-size: 11px;
+        }
     </style>
 </head>
 
@@ -50,71 +54,38 @@
             </div>
         </nav>
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-7">
                 <img class="mx-auto d-block rounded border border-light" width="95%" src="{{ url_for('video_feed') }}">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <div class="row">
-                    <div class="col-md-8 table-responsive border border-light rounded-1"
+                    <div class="col-md-9 table-responsive border border-light rounded-1"
                         style="background-color: #333541;">
                         <table class="table text-white table-borderless m-auto">
                             <tr>
-                                <td>Usage |</td>
-                                <td>FPS : </td>
-                                <td>GPU : </td>
-                                <td>Memory : </td>
+                                <td class="fs-7">Usage |</td>
+                                <td class="fs-7">FPS : <span id="fps">-</span></td>
+                                <td class="fs-7">GPU : <span id="cpu">-</span></td>
+                                <td class="fs-7">Memory : <span id="memory">-</span></td>
                             </tr>
                         </table>
                     </div>
-                    <div class="col-md-3 ms-3 border border-light rounded-1 text-center pt-2 m-0"
+                    <div class="col-md-2 ms-3 border border-light rounded-1 text-center pt-2 m-0"
                         style="background-color: #333541;">
-                        <p class="m-auto" id="date"></p>
+                        <p class="m-auto fs-7" id="date"></p>
                     </div>
                 </div>
                 <div class="col-md-12">
                     <p class="text-white fw-bold mt-5" id="greeting">Welcome</p>
                     <h2 class="fw-bold" id="name-person">-</h2>
-                    <p class="text-white fs-6">Title</p>
+                    <p class="text-white fs-6" id="title-person">Title</p>
                 </div>
                 <div class="col-md-12 table-responsive">
                     <div class="card" style="background-color: #333541;">
                         <div class="card-body" style="background-color: #333541;">
-                            <h3 class="border-bottom pb-2">History</h3>
-                            <table class="table table-border text-white">
-                                <tr>
-                                    <td><img src="https://nurulfikri.ac.id/wp-content/uploads/2017/10/user9.jpg"
-                                            style="width:40px;" class="rounded-circle"></td>
-                                    <td class="m-0 mt-1 text-center">Bagas</td>
-                                    <td class="m-0 mt-1 text-center">12/02/23</td>
-                                </tr>
-                                <tr>
-                                <tr>
-                                    <td><img src="https://nurulfikri.ac.id/wp-content/uploads/2017/10/user9.jpg"
-                                            style="width:40px;" class="rounded-circle"></td>
-                                    <td class="m-0 mt-1 text-center">Bagas</td>
-                                    <td class="m-0 mt-1 text-center">12/02/23</td>
-                                </tr>
-                                <tr>
-                                <tr>
-                                    <td><img src="https://nurulfikri.ac.id/wp-content/uploads/2017/10/user9.jpg"
-                                            style="width:40px;" class="rounded-circle"></td>
-                                    <td class="m-0 mt-1 text-center">Bagas</td>
-                                    <td class="m-0 mt-1 text-center">12/02/23</td>
-                                </tr>
-                                <tr>
-                                <tr>
-                                    <td><img src="https://nurulfikri.ac.id/wp-content/uploads/2017/10/user9.jpg"
-                                            style="width:40px;" class="rounded-circle"></td>
-                                    <td class="m-0 mt-1 text-center">Bagas</td>
-                                    <td class="m-0 mt-1 text-center">12/02/23</td>
-                                </tr>
-                                <tr>
-                                <tr>
-                                    <td><img src="https://nurulfikri.ac.id/wp-content/uploads/2017/10/user9.jpg"
-                                            style="width:40px;" class="rounded-circle"></td>
-                                    <td class="m-0 mt-1 text-center">Bagas</td>
-                                    <td class="m-0 mt-1 text-center">12/02/23</td>
-                                </tr>
+                            <h4 class="border-bottom pb-2">History</h4>
+                            <table id="table-history" class="table table-border text-white">
+                                
 
                             </table>
                         </div>
