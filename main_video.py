@@ -1,5 +1,5 @@
 import cv2
-from flask import Flask, render_template, Response,request
+from flask import Flask, render_template, Response,request,jsonify
 from simple_facerec import SimpleFacerec
 import sys
 from random import random
@@ -7,6 +7,9 @@ from flask_socketio import SocketIO
 from threading import Lock
 from datetime import datetime
 import os, psutil,base64
+import base64
+from io import BytesIO
+from PIL import Image
 
 thread = None
 thread_lock = Lock()
@@ -21,6 +24,7 @@ sfr.load_encoding_images("images/")
 
 # Load Camera
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture('rtsp://192.168.100.4:8080/h264.sdp')
 if not cap.isOpened():
     sys.exit('Video source not found...')
 else:
@@ -69,8 +73,38 @@ def video_feed():
 
 @app.route('/')
 def index():
-    """Real Time Object Detection v3."""
     return render_template("index.html")
+
+@app.route('/register',methods=['GET','POST'])
+def register():
+    if request.method == 'GET':
+        return render_template("register.html")
+    if request.method == 'POST':
+        data = request.get_json()
+        if 'name' not in data:
+            return jsonify({'message':'nama harus di isi',"status":"failed"}),400
+        
+        if 'img' not in data:
+            return jsonify({'message':'nama harus di isi',"status":"failed"}),400
+        
+        if data['name'] is None or data['name'] == "" :
+            return jsonify({'message':'nama harus di isi',"status":"failed"}),400
+        
+        
+        name = data['name']
+        file_exists = os.path.exists('images/{}.jpg'.format(name))
+        if  file_exists:
+            return jsonify({'message':'nama sudah digunakan',"status":"failed"}),400
+        
+        file = data['img']
+        starter = file.find(',')
+        image_data = file[starter+1:]
+        image_data = bytes(image_data, encoding="ascii")
+        im = Image.open(BytesIO(base64.b64decode(image_data))).convert('RGB')
+        im.save('images/{}.jpg'.format(name))
+        sfr.encoding_images('images/{}.jpg'.format(name))
+
+        return jsonify({"message":"berhasil tambah data","status":"success"})
 
 
 
@@ -102,4 +136,4 @@ def disconnect():
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app,host='0.0.0.0',port=5001)
