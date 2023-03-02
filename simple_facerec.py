@@ -3,15 +3,15 @@ import cv2
 import os
 import glob
 import numpy as np
-# import logging
+import logging
 
-# format = "%(asctime)s : %(message)s"
-# logging.basicConfig(
-#     format=format,
-#     level=logging.INFO,
-#     datefmt="%H:%M:%S",
-#     filename="log.txt"
-# )
+format = "%(asctime)s : %(message)s"
+logging.basicConfig(
+    format=format,
+    level=logging.INFO,
+    datefmt="%H:%M:%S",
+    filename="log.txt"
+)
 class SimpleFacerec:
     def __init__(self):
         self.known_face_encodings = []
@@ -32,6 +32,7 @@ class SimpleFacerec:
         self.known_face_encodings.append(img_encoding)
         self.known_face_names.append(filename)
         print('success encoding {}'.format(img_path))
+        logging.info('success encoding {}'.format(img_path))
 
     def load_encoding_images(self, images_path):
         """
@@ -47,7 +48,6 @@ class SimpleFacerec:
         # Store image encoding and names
         for img_path in images_path:
             self.encoding_images(img_path)
-        # logging.info("Encoding images loaded")
         print("Encoding images loaded")
 
     def detect_known_faces(self, frame):
@@ -64,17 +64,28 @@ class SimpleFacerec:
             matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
             name = "Unknown"
 
+            print(os.getenv('MODE'))
             # # If a match was found in known_face_encodings, just use the first one.
-            # if True in matches:
-            #     first_match_index = matches.index(True)
-            #     name = known_face_names[first_match_index]
+            if os.getenv('MODE','FIRST') == 'FIRST':
+                if True in matches:
+                    first_match_index = matches.index(True)
+                    name = self.known_face_names[first_match_index]
+                    logging.info('Found face {}'.format(name))
+                else:
+                    logging.info('Unknown face')
 
             # Or instead, use the known face with the smallest distance to the new face
-            face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-            best_match_index = np.argmin(face_distances)
-            if matches[best_match_index]:
-                name = self.known_face_names[best_match_index]
+            else:
+                face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+                if matches[best_match_index]:
+                    name = self.known_face_names[best_match_index]
+                    logging.info('Found face {}'.format(name))
+                else :
+                    logging.info('Unknown face')
+
             face_names.append(name)
+
 
         # Convert to numpy array to adjust coordinates with frame resizing quickly
         face_locations = np.array(face_locations)
