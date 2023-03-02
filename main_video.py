@@ -8,6 +8,9 @@ import os, psutil,base64
 import base64
 from io import BytesIO
 from PIL import Image
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'donsky!'
@@ -17,8 +20,9 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 sfr = SimpleFacerec()
 sfr.load_encoding_images("images/")
 
+cs = int(os.getenv('CAMERA_SOURCE')) if os.getenv('CAMERA_SOURCE').isnumeric() else os.getenv('CAMERA_SOURCE',0) #camera source
 # Load Camera
-cap = cv2.VideoCapture(os.environ.get('CAMERA_SOURCE',0))
+cap = cv2.VideoCapture(cs)
 # cap = cv2.VideoCapture('rtsp://192.168.100.4:8080/h264.sdp')
 if not cap.isOpened():
     sys.exit('Video source not found...')
@@ -113,4 +117,4 @@ def disconnect():
     print('Client disconnected',  request.sid)
 
 if __name__ == '__main__':
-    socketio.run(app,host='0.0.0.0',port=os.environ.get('PORT',5000))
+    socketio.run(app,host='0.0.0.0',port=os.getenv('PORT',5000))
