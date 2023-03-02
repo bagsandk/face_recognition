@@ -1,11 +1,8 @@
-import cv2
+import cv2,os, psutil,base64,time,sys
 from flask import Flask, render_template, Response,request,jsonify
 from simple_facerec import SimpleFacerec
-import sys
 from flask_socketio import SocketIO
 from datetime import datetime
-import os, psutil,base64
-import base64
 from io import BytesIO
 from PIL import Image
 from dotenv import load_dotenv
@@ -30,12 +27,16 @@ else:
     print('Video source ready...')
 
 def gen_frames(): 
+    # used to record the time when we processed last frame
+    prev_frame_time = 0
+    new_frame_time = 0
     while True:
         ret, frame = cap.read()
-        fps = cap.get(cv2.CAP_PROP_FPS)
+        psutil.Process(os.getpid())
         memory = round(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
         cpu = psutil.cpu_percent()
-        socketio.emit('updateSensorDataDevice', {'date':get_current_datetime(),'cpu':cpu,'memory':memory,'fps':fps})
+
+        new_frame_time = time.time()
 
         # Detect Faces
         face_locations, face_names = sfr.detect_known_faces(frame)
@@ -57,6 +58,12 @@ def gen_frames():
             
         # socketio.sleep(1)
         
+        # Calculating the fps
+        fps = 1/(new_frame_time-prev_frame_time)
+        prev_frame_time = new_frame_time
+        fps = int(fps)
+        socketio.emit('updateSensorDataDevice', {'date':get_current_datetime(),'cpu':cpu,'memory':memory,'fps':fps})
+
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'

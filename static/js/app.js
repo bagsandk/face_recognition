@@ -3,6 +3,8 @@ var socket = io.connect();
 $(document).ready(function () {
   //receive details from server
   var date = "00";
+  var date1 = "00";
+  var date2 = "00";
   socket.on("updateSensorData", function (msg) {
     if (msg.date != date) {
       if (msg.object != "Unknown") {
@@ -28,20 +30,21 @@ $(document).ready(function () {
     date = msg.date;
   });
   socket.on("updateSensorDataEmpty", function (msg) {
-    if (msg.date != date) {
-      $("#greeting").text("Welcome");
+    if (msg.date != date1) {
+      $("#greeting").text("Please show your face");
       $("#name-person").text("-");
     }
-    date = msg.date;
+    date1 = msg.date;
   });
 
   socket.on("updateSensorDataDevice", function (msg) {
-    if (msg.date != date) {
+    if (msg.date != date2) {
       $("#memory").text(`${msg.memory} MiB`);
       $("#cpu").text(`${msg.cpu}%`);
       $("#fps").text(`${msg.fps}`);
+      console.log(msg)
     }
-    date = msg.date;
+    date2 = msg.date;
   });
 
   n = new Date();

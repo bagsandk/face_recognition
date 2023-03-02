@@ -64,7 +64,6 @@ class SimpleFacerec:
             matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
             name = "Unknown"
 
-            print(os.getenv('MODE'))
             # # If a match was found in known_face_encodings, just use the first one.
             if os.getenv('MODE','FIRST') == 'FIRST':
                 if True in matches:
