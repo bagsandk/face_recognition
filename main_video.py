@@ -2,17 +2,12 @@ import cv2
 from flask import Flask, render_template, Response,request,jsonify
 from simple_facerec import SimpleFacerec
 import sys
-from random import random
 from flask_socketio import SocketIO
-from threading import Lock
 from datetime import datetime
 import os, psutil,base64
 import base64
 from io import BytesIO
 from PIL import Image
-
-thread = None
-thread_lock = Lock()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'donsky!'
@@ -48,17 +43,16 @@ def gen_frames():  # frameler şeklinde görüntüleri topluyoruz
             y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
 
             # cv2.putText(frame, name,(x1, y1 - 10), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 200), 2)
-            width, height = 200, 200
+            width, height = 300, 300
             x, y = x1, y1
 
             crop_img = frame[y:y+height, x:x+width]
             ret, buffer = cv2.imencode('.jpg', crop_img)
             face_base64 = base64.b64encode(buffer).decode()
             socketio.emit('updateSensorData', {'object':name, 'img':face_base64, 'date':get_current_datetime()})
-            
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 4)
             
-        socketio.sleep(1)
+        # socketio.sleep(1)
         
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()

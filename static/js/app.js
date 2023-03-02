@@ -2,40 +2,46 @@ var socket = io.connect();
 
 $(document).ready(function () {
   //receive details from server
+  var date = "00";
   socket.on("updateSensorData", function (msg) {
-    console.log("Received sensorData :: " + msg.date + " :: " + msg.img);
-    if (msg.object != "Unknown") {
-      $("#greeting").removeClass("text-danger");
-      $("#greeting").addClass("text-success");
-      $("#greeting").text("Welcome");
-      $("#name-person").text(msg.object);
-      var contnt = `<tr>
+    if (msg.date != date) {
+      if (msg.object != "Unknown") {
+        $("#greeting").removeClass("text-danger");
+        $("#greeting").addClass("text-success");
+        $("#greeting").text("Welcome");
+        $("#name-person").text(msg.object);
+        var contnt = `<tr>
       <td><img id="wajah" src="data:image/png;base64,${msg.img}"
               style="width:50px; height:50px;" class="rounded-circle"></td>
       <td class="m-0 mt-1 text-center">${msg.object}</td>
       <td class="m-0 mt-1 text-end ">${msg.date}</td>
-  </tr>`
+  </tr>`;
 
-      $("#table-history").prepend(contnt);
-    } else {
-      $("#greeting").removeClass("text-success");
-      $("#greeting").addClass("text-danger");
-      $("#greeting").text("Your face is not recognize");
-      $("#name-person").text("-");
+        $("#table-history").prepend(contnt);
+      } else {
+        $("#greeting").removeClass("text-success");
+        $("#greeting").addClass("text-danger");
+        $("#greeting").text("Your face is not recognize");
+        $("#name-person").text("-");
+      }
     }
+    date = msg.date;
   });
   socket.on("updateSensorDataEmpty", function (msg) {
-    console.log("Received updateSensorDataEmpty :: " + msg.date);
-    $("#greeting").text("Welcome");
-    $("#name-person").text("-");
-
+    if (msg.date != date) {
+      $("#greeting").text("Welcome");
+      $("#name-person").text("-");
+    }
+    date = msg.date;
   });
 
   socket.on("updateSensorDataDevice", function (msg) {
-    console.log("Received updateSensorDataDevice :: " + msg.date);
-    $("#memory").text(`${msg.memory} MiB`);
-    $("#cpu").text(`${msg.cpu}%`);
-    $("#fps").text(`${msg.fps}`);
+    if (msg.date != date) {
+      $("#memory").text(`${msg.memory} MiB`);
+      $("#cpu").text(`${msg.cpu}%`);
+      $("#fps").text(`${msg.fps}`);
+    }
+    date = msg.date;
   });
 
   n = new Date();
