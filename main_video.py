@@ -18,18 +18,17 @@ sfr = SimpleFacerec()
 sfr.load_encoding_images("images/")
 
 # Load Camera
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(os.environ.get('CAMERA_SOURCE',0))
 # cap = cv2.VideoCapture('rtsp://192.168.100.4:8080/h264.sdp')
 if not cap.isOpened():
     sys.exit('Video source not found...')
 else:
     print('Video source ready...')
 
-def gen_frames():  # frameler şeklinde görüntüleri topluyoruz
+def gen_frames(): 
     while True:
         ret, frame = cap.read()
         fps = cap.get(cv2.CAP_PROP_FPS)
-        process = psutil.Process(os.getpid())
         memory = round(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
         cpu = psutil.cpu_percent()
         socketio.emit('updateSensorDataDevice', {'date':get_current_datetime(),'cpu':cpu,'memory':memory,'fps':fps})
@@ -62,7 +61,6 @@ def gen_frames():  # frameler şeklinde görüntüleri topluyoruz
 
 @app.route('/video_feed')
 def video_feed():
-    #outputu stream ediyoruz :
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/')
@@ -84,7 +82,6 @@ def register():
         if data['name'] is None or data['name'] == "" :
             return jsonify({'message':'nama harus di isi',"status":"failed"}),400
         
-        
         name = data['name']
         file_exists = os.path.exists('images/{}.jpg'.format(name))
         if  file_exists:
@@ -100,34 +97,20 @@ def register():
 
         return jsonify({"message":"berhasil tambah data","status":"success"})
 
-
-
-"""
-Get current date time
-"""
+# Get current date time
 def get_current_datetime():
     now = datetime.now()
     return now.strftime("%m/%d/%Y %H:%M:%S")
 
-"""
-Generate random sequence of dummy sensor values and send it to our clients
-"""
-
-
-"""
-Decorator for connect
-"""
+# Decorator for connect
 @socketio.on('connect')
 def connect():
     print('Client connected')
 
-"""
-Decorator for disconnect
-"""
+# Decorator for disconnect
 @socketio.on('disconnect')
 def disconnect():
     print('Client disconnected',  request.sid)
 
-
 if __name__ == '__main__':
-    socketio.run(app,host='0.0.0.0',port=5001)
+    socketio.run(app,host='0.0.0.0',port=os.environ.get('PORT',5000))
