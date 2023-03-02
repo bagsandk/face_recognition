@@ -57,11 +57,12 @@ def gen_frames():
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 4)
             
         # socketio.sleep(1)
-        
+
         # Calculating the fps
         fps = 1/(new_frame_time-prev_frame_time)
         prev_frame_time = new_frame_time
         fps = int(fps)
+        print('fps : {}'.format(fps))
         socketio.emit('updateSensorDataDevice', {'date':get_current_datetime(),'cpu':cpu,'memory':memory,'fps':fps})
 
         ret, buffer = cv2.imencode('.jpg', frame)
