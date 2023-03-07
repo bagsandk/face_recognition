@@ -53,10 +53,14 @@ def gen_frames():
             crop_img = frame[y:y+height, x:x+width]
             ret, buffer = cv2.imencode('.jpg', crop_img)
             face_base64 = base64.b64encode(buffer).decode()
-            socketio.emit('updateSensorData', {'object':name, 'img':face_base64, 'date':get_current_datetime()})
+            r, b = cv2.imencode('.jpg', frame)
+            face2_base64 = base64.b64encode(b).decode()
+            socketio.emit('updateSensorData', {'object':name, 'img':face_base64, 'img2':face2_base64,  'date':get_current_datetime()})
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 4)
+            # if name != 'Unknown':
+            #     socketio.sleep(5)
+
             
-        # socketio.sleep(1)
 
         # Calculating the fps
         fps = 1/(new_frame_time-prev_frame_time)
