@@ -65,8 +65,8 @@
                 <div class="d-flex justify-content-center">
                     <img src="" id="result" />
                 </div>
-                    <button id="take" style="width: 50%;" class="btn btn-light text-center mt-3 " onclick="takeSnapshot()"><i
-                            class="fa-solid fa-camera"></i> Take Photo</button>
+                <button id="take" style="width: 50%;" class="btn btn-light text-center mt-3 "
+                    onclick="takeSnapshot()"><i class="fa-solid fa-camera"></i> Take Photo</button>
                 <button id="retake" style="display: none;width: 50%;" class="btn btn-warning text-center mt-3"
                     onclick="retakeSnapshot()"><i class="fa-solid fa-camera-rotate"></i> Retake</button>
                 <div class="d-flex justify-content-center">
@@ -74,13 +74,30 @@
                         <div class="mb-3 mt-3">
                             <input type="text" class="form-control" id="nama" placeholder="Name">
                         </div>
-                        <button type="button" id="save-data" style="width: 100%;" class="btn btn-light text-center mt-1"><i class="fa-solid fa-bookmark"></i> Save</button>
+                        <button type="button" id="save-data" style="width: 100%;"
+                            class="btn btn-light text-center mt-1"><i class="fa-solid fa-bookmark"></i> Save</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modalAlert" tabindex="-1" aria-labelledby="modalAlertLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center flex-column align-items-center">
+                        <img width="300" id="icon-message" class="mt-3"
+                            src="{{ url_for('static', filename = 'img/success.png') }}" alt="">
+                        <p id="message" class="mt-5">Selamat Begabung</p>
+                        <h3 id="name-person" class="mt4 fs-bold text-center">Bagas</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 <script type="text/javascript">
     // seleksi elemen video
     var video = document.querySelector("#video-webcam");
@@ -157,19 +174,34 @@
             response.json().then((data) => {
                 console.log(data);
                 if (data.status == 'success') {
-                    alert(data.message)
+                    $('#icon-message').attr("src", "{{ url_for('static', filename = 'img/success.png') }}")
+                    $('#message').text('Selamat Begabung')
+                    $('#name-person').text($('#nama').val())
+                    $('#modalAlert').modal('show')
+                    setTimeout(function () {
+                        $('#modalAlert').modal('hide')
+                        $('#name-person').text('')
+                    }, 3000);
                     $('#video-webcam').show()
                     $('#result').hide()
                     $('#take').show()
                     $('#retake').hide()
                     $('#save').hide()
                 } else {
-                    alert(data.message)
+                    $('#icon-message').attr("src", "{{ url_for('static', filename = 'img/error.png') }}")
+                    $('#message').text('Opps')
+                    $('#name-person').text(`Nama ${$('#nama').val()} Sudah Digunakan`)
+                    $('#modalAlert').modal('show')
+                    setTimeout(function () {
+                        $('#modalAlert').modal('hide')
+                        $('#name-person').text('')
+                    }, 3000);
                 }
             }).catch((err) => {
                 console.log(err);
             })
         });
+
     })
 </script>
 
