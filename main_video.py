@@ -1,4 +1,4 @@
-import cv2,os, psutil,base64,time,sys
+import cv2,os, psutil,base64,time,sys,glob
 from flask import Flask, render_template, Response,request,jsonify
 from simple_facerec import SimpleFacerec
 from flask_socketio import SocketIO
@@ -82,6 +82,53 @@ def video_feed():
 @app.route('/')
 def index():
     return render_template("index.html")
+
+@app.route('/data',methods=['GET','PUT','DELETE'])
+def list_data():
+    if request.method == 'GET':
+        images_path = glob.glob(os.path.join('images', "*.*"))
+
+        list_data = []
+        no = 1;
+        for img_path in images_path:
+            basename = os.path.basename(img_path)
+            (filename, ext) = os.path.splitext(basename)
+            img_base64 = ''
+            with open("images/{}{}".format(filename,ext), "rb") as image_file:
+                img_base64 = base64.b64encode(image_file.read())
+                img_base64 =str(img_base64,'utf-8')
+
+            list_data.append({'name':filename,'no':no,'img_base64':img_base64})
+            no = no+1
+
+        return render_template("data.html",data=list_data)
+    
+    if request.method == 'PUT':
+
+        nameperson = request.args.get('name')
+        if nameperson is None or nameperson == '':
+            return jsonify({'message':'name not found','status':False})
+        
+        if 'name' in request.json:
+            if request.json['name'] is None or request.json['name'] == '':
+                return jsonify({'message':'value not found','status':False})
+            else:
+                namepersonnew = request.json['name']
+                sfr.edit_encoding_image(nameperson,namepersonnew)
+                return jsonify({'message':'success','status':True})
+        else:
+            return jsonify({'message':'value not found','status':False})
+    
+    if request.method == 'DELETE':
+        nameperson = request.args.get('name')
+        if nameperson is None or nameperson == '':
+            return jsonify({'message':'name not found','status':False})
+        
+        result = sfr.delete_encoding_image(nameperson)
+        return jsonify({'message':'success','status':result})
+
+    
+    
 
 @app.route('/register',methods=['GET','POST'])
 def register():

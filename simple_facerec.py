@@ -27,12 +27,37 @@ class SimpleFacerec:
         basename = os.path.basename(img_path)
         (filename, ext) = os.path.splitext(basename)
         # Get encoding
-        img_encoding = face_recognition.face_encodings(rgb_img)[0]
+
+        img_encoding = face_recognition.face_encodings(rgb_img)
         # Store file name and file encoding
-        self.known_face_encodings.append(img_encoding)
+        self.known_face_encodings.append(img_encoding[0])
         self.known_face_names.append(filename)
         print('success encoding {}'.format(img_path))
         logging.info('success encoding {}'.format(img_path))
+
+    def delete_encoding_image(self,nameperson):
+        if nameperson in self.known_face_names:
+            file_exists = os.path.exists('images/{}.jpg'.format(nameperson))
+            if file_exists:
+                index = self.known_face_names.index(nameperson)
+                self.known_face_names.remove(nameperson)
+                del self.known_face_encodings[index]
+                os.remove('images/{}.jpg'.format(nameperson))
+            return True;
+        else:
+            return False;
+        
+    def edit_encoding_image(self,nameperson,namepersonnew):
+        if nameperson in self.known_face_names:
+            file_exists = os.path.exists('images/{}.jpg'.format(nameperson))
+            if file_exists:
+                index = self.known_face_names.index(nameperson)
+                self.known_face_names[index] = namepersonnew
+                os.rename('images/{}.jpg'.format(nameperson),'images/{}.jpg'.format(namepersonnew))
+            return True;
+        else:
+            return False;
+        
 
     def load_encoding_images(self, images_path):
         """
@@ -48,6 +73,7 @@ class SimpleFacerec:
         # Store image encoding and names
         for img_path in images_path:
             self.encoding_images(img_path)
+            
         print("Encoding images loaded")
 
     def detect_known_faces(self, frame):
@@ -61,27 +87,28 @@ class SimpleFacerec:
         face_names = []
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
-            matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
             name = "Unknown"
+            if len(self.known_face_encodings) > 0:
+                matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
 
-            # # If a match was found in known_face_encodings, just use the first one.
-            if os.getenv('MODE','FIRST') == 'FIRST':
-                if True in matches:
-                    first_match_index = matches.index(True)
-                    name = self.known_face_names[first_match_index]
-                    logging.info('Found face {}'.format(name))
+                # # If a match was found in known_face_encodings, just use the first one.
+                if os.getenv('MODE','FIRST') == 'FIRST':
+                    if True in matches:
+                        first_match_index = matches.index(True)
+                        name = self.known_face_names[first_match_index]
+                        logging.info('Found face {}'.format(name))
+                    else:
+                        logging.info('Unknown face')
+
+                # Or instead, use the known face with the smallest distance to the new face
                 else:
-                    logging.info('Unknown face')
-
-            # Or instead, use the known face with the smallest distance to the new face
-            else:
-                face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-                best_match_index = np.argmin(face_distances)
-                if matches[best_match_index]:
-                    name = self.known_face_names[best_match_index]
-                    logging.info('Found face {}'.format(name))
-                else :
-                    logging.info('Unknown face')
+                        face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+                        best_match_index = np.argmin(face_distances)
+                        if matches[best_match_index]:
+                            name = self.known_face_names[best_match_index]
+                            logging.info('Found face {}'.format(name))
+                        else :
+                            logging.info('Unknown face')
 
             face_names.append(name)
 
