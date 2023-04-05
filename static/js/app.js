@@ -40,7 +40,7 @@ $(document).ready(function () {
               volume = 1;
             let text = `Welcome ${msg.object}`;
             // setTimeout(() => {
-              speak(text, voices[5], rate, pitch, volume);
+              // speak(text, voices[5], rate, pitch, volume);
             // }, 1000);
           } else {
             console.log(" Speech Synthesis Not Supported 😞");
