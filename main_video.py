@@ -19,7 +19,12 @@ sfr.load_encoding_images("images/")
 
 cs = int(os.getenv('CAMERA_SOURCE')) if os.getenv('CAMERA_SOURCE').isnumeric() else os.getenv('CAMERA_SOURCE',0) #camera source
 # Load Camera
+
 cap = cv2.VideoCapture(cs)
+frame_width = int(cap.get(3))
+frame_height = int(cap.get(4))
+out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+
 # cap = cv2.VideoCapture('rtsp://192.168.100.4:8080/h264.sdp')
 if not cap.isOpened():
     sys.exit('Video source not found...')
@@ -68,7 +73,7 @@ def gen_frames():
         fps = int(fps)
         print('fps : {}'.format(fps))
         socketio.emit('updateSensorDataDevice', {'date':get_current_datetime(),'cpu':cpu,'memory':memory,'fps':fps})
-
+        out.write(frame)
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
@@ -85,6 +90,7 @@ def index():
 
 @app.route('/data',methods=['GET','PUT','DELETE'])
 def list_data():
+    out.release()
     if request.method == 'GET':
         images_path = glob.glob(os.path.join('images', "*.*"))
 
